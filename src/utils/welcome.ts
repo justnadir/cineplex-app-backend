@@ -1,5 +1,5 @@
 export const welcome = () => {
-    return `
+  return `
         <!DOCTYPE html>
         <html lang="en">
         <head>
