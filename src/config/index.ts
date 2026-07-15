@@ -14,6 +14,11 @@ const config = {
   ip_address: env.MACHINE_IP,
   port: env.PORT,
 
+  cors: {
+    prod_origins: env.PROD_ORIGINS,
+    allowed_origins: env.ALLOWED_ORIGINS,
+  },
+
   app: {
     name: env.APP_NAME,
     frontendUrl: env.FRONTEND_URL,

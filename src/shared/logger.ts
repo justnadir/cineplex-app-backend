@@ -1,6 +1,6 @@
 import pino from "pino";
 import pretty from "pino-pretty";
-import config from "../confiq";
+import config from "../config";
 
 const isProd = config.app.name === "production";
 

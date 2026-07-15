@@ -6,6 +6,9 @@ const envSchema = z.object({
     .default("development"),
   APP_NAME: z.string().default("node-pg-api"),
 
+  // cors
+  PROD_ORIGINS: z.string(),
+  ALLOWED_ORIGINS: z.string(),
   // those for the device
   PORT: z.coerce.number().default(3000),
   MACHINE_IP: z.string(),

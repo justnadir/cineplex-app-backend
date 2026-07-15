@@ -1,5 +1,5 @@
 import app from "./app";
-import config from "./confiq";
+import config from "./config";
 import logger from "./shared/logger";
 
 async function main() {
