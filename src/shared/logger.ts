@@ -2,7 +2,7 @@ import pino from "pino";
 import pretty from "pino-pretty";
 import config from "../config";
 
-const isProd = config.app.name === "production";
+const isProd = config?.app?.name === "production";
 
 const prettyStream = pretty({
   colorize: true,
@@ -16,7 +16,7 @@ const prettyStream = pretty({
 export const logger = pino(
   {
     level: process.env.LOG_LEVEL || (isProd ? "info" : "debug"),
-    base: { service: config.app.name || "node-pg-api" },
+    base: { service: config?.app?.name || "node-pg-api" },
     timestamp: pino.stdTimeFunctions.isoTime,
     redact: {
       paths: [

@@ -14,6 +14,16 @@ const config = {
   ip_address: env.MACHINE_IP,
   port: env.PORT,
 
+  database: {
+    host: env.DATABASE_HOST,
+    port: env.DATABASE_PORT,
+    name: env.DATABASE_NAME,
+    user: env.DATABASE_USER,
+    password: env.DATABASE_PASSWORD,
+    pool_max: env.DATABASE_POOL_MAX,
+    pool_min: env.DATABASE_POOL_MIN,
+  },
+
   cors: {
     prod_origins: env.PROD_ORIGINS,
     allowed_origins: env.ALLOWED_ORIGINS,
