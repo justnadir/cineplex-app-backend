@@ -1,4 +1,6 @@
-import { ACCOUNT_STATUS, USER_ROLES } from "../../enums";
+import { USER_ROLES } from "../../enums";
+
+export type AccountStatus = "active" | "inactive" | "banned" | "deleted";
 
 // this is the interface for main field for the user table.
 export interface IUser {
@@ -8,7 +10,7 @@ export interface IUser {
   avatar: string;
   phone: string | null;
   is_email_verified: boolean;
-  status: ACCOUNT_STATUS;
+  status: AccountStatus;
   role: USER_ROLES;
   password_hash: string;
   last_login_at: Date | null;
@@ -23,6 +25,7 @@ export type ICreateUser = Omit<
   | "id"
   | "password_hash"
   | "avatar"
+  | "is_active"
   | "is_email_verified"
   | "status"
   | "last_login_at"

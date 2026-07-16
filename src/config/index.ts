@@ -14,6 +14,21 @@ const config = {
   ip_address: env.MACHINE_IP,
   port: env.PORT,
 
+  cors: {
+    prod_origins: env.PROD_ORIGINS,
+    allowed_origins: env.ALLOWED_ORIGINS,
+  },
+
+  app: {
+    name: env.APP_NAME,
+    frontendUrl: env.FRONTEND_URL,
+  },
+
+  cookie: {
+    samesite: env.COOKIE_SAMESITE,
+    secure: env.COOKIE_SECURE,
+  },
+
   database: {
     host: env.DATABASE_HOST,
     port: env.DATABASE_PORT,
@@ -24,14 +39,26 @@ const config = {
     pool_min: env.DATABASE_POOL_MIN,
   },
 
-  cors: {
-    prod_origins: env.PROD_ORIGINS,
-    allowed_origins: env.ALLOWED_ORIGINS,
+  jwt: {
+    accessSecret: env.JWT_ACCESS_SECRET,
+    refreshSecret: env.JWT_REFRESH_SECRET,
+    accessExpiresIn: env.JWT_ACCESS_EXPIRES_IN,
+    refreshExpiresDays: env.JWT_REFRESH_EXPIRES_DAYS,
   },
-
-  app: {
-    name: env.APP_NAME,
-    frontendUrl: env.FRONTEND_URL,
+  email: {
+    from: env.EMAIL_FROM,
+    user: env.EMAIL_USER,
+    port: env.EMAIL_PORT,
+    host: env.EMAIL_HOST,
+    pass: env.EMAIL_PASS,
+  },
+  redis: {
+    host: env.REDIS_HOST,
+    port: env.REDIS_PORT,
+  },
+  bullConnection: {
+    host: env.REDIS_HOST,
+    port: Number(env.REDIS_PORT),
   },
 };
 

@@ -10,7 +10,7 @@ import { corsOptions } from "./config/cors";
 import { globalLimiter } from "./config/globalLimiter";
 
 dotenv.config();
-
+import "./types/express";
 const app = express();
 
 // project tech history forensics:

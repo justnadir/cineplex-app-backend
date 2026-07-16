@@ -1,10 +1,10 @@
 import { z } from "zod";
+import { USER_ROLES } from "../../enums";
 import {
   emailSchema,
   phoneSchema,
   positiveIntIdSchema,
 } from "../../validators";
-import { USER_ROLES } from "./../../enums";
 
 export class UserValidator {
   private passwordSchema = z
@@ -50,6 +50,7 @@ export class UserValidator {
 
   retrievedProfileZodSchema = z.object({
     params: positiveIntIdSchema("User ID"),
+    query: z.object({}).strict(),
   });
 
   changePasswordZodSchema = z.object({
