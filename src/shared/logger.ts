@@ -1,21 +1,13 @@
 import pino from "pino";
-import pretty from "pino-pretty";
+import path from "path";
 import config from "../config";
 
 const isProd = config?.app?.name === "production";
-
-const prettyStream = pretty({
-  colorize: true,
-  translateTime: "SYS:ddd mmm dd yyyy HH:MM:ss",
-  ignore: "pid,hostname,service,req,res,responseTime",
-  customPrettifiers: {
-    time: (timestamp) => `${timestamp} [CINEPLEX]`,
-  },
-});
+const logDir = path.join(process.cwd(), "logs");
 
 export const logger = pino(
   {
-    level: process.env.LOG_LEVEL || (isProd ? "info" : "debug"),
+    level: isProd ? "info" : "debug",
     base: { service: config?.app?.name || "node-pg-api" },
     timestamp: pino.stdTimeFunctions.isoTime,
     redact: {
@@ -28,7 +20,30 @@ export const logger = pino(
       censor: "[REDACTED]",
     },
   },
-  isProd ? undefined : prettyStream
+  pino.transport({
+    targets: [
+      ...(isProd
+        ? []
+        : [
+            {
+              target: "pino-pretty",
+              level: "debug",
+              options: {
+                colorize: true,
+                translateTime: "SYS:ddd mmm dd yyyy HH:MM:ss",
+                ignore: "pid,hostname,service,req,res,responseTime",
+              },
+            },
+          ]),
+      {
+        target: path.join(__dirname, "logTransport.ts"),
+        options: {
+          successDir: path.join(logDir, "success"),
+          errorDir: path.join(logDir, "error"),
+        },
+      },
+    ],
+  })
 );
 
 export default logger;
