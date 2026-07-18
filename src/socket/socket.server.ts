@@ -29,7 +29,6 @@ export const initSocketServer = async (
     logger.error({ err }, "Socket.io Redis subClient error")
   );
 
-  // duita client ready howa porjonto wait kora hocche, tarpor adapter attach
   await Promise.all([
     new Promise<void>((resolve) => pubClient.once("ready", resolve)),
     new Promise<void>((resolve) => subClient.once("ready", resolve)),
@@ -37,7 +36,6 @@ export const initSocketServer = async (
 
   io.adapter(createAdapter(pubClient, subClient));
 
-  // eituku e enough — eta reach korar mane e duita connection thik moto hoyeche
   logger.info("Socket.io: connected (Redis adapter attached)");
 
   io.use(socketAuthMiddleware);
@@ -48,8 +46,6 @@ export const initSocketServer = async (
 
     activeConnections++;
 
-    // high-frequency event — production e noise create kore, tai debug level e.
-    // LOG_LEVEL=debug set korle development e dekha jabe, production e hide thakbe
     logger.debug(`Socket connected: ${socket.id}, user: ${userId}`);
 
     socket.on("disconnect", (reason) => {
@@ -58,23 +54,21 @@ export const initSocketServer = async (
     });
   });
 
-  // protita connect/disconnect alada log na kore, protita minute e ekta
-  // summary log — production e monitoring/debugging er jonno enough
   statsInterval = setInterval(() => {
     logger.info(`Active socket connections: ${activeConnections}`);
   }, 60_000);
-  statsInterval.unref(); // eta process ke running rakhbe na shudhu ei timer er jonno
+  statsInterval.unref();
 
   return io;
 };
 
-// service layer theke emit korar jonno accessor
+// service layer accessor
 export const getIO = (): Server => {
   if (!io) throw new Error("Socket.io has not been initialized");
   return io;
 };
 
-// graceful shutdown er somoy server.ts theke call hobe
+// graceful shutdown
 export const closeSocketServer = async (): Promise<void> => {
   if (statsInterval) clearInterval(statsInterval);
 

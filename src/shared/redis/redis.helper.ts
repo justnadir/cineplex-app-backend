@@ -76,8 +76,6 @@ export class RedisHelper {
         value: unknown,
         ttl: number = 60
     ): Promise<void> {
-        // CHANGED: age hardcoded 'limit=10&page=1' default chilo, eta ei project
-        // er sathe naa mile bug hote pare, tai generic 'default' e namano hoyeche
         const field = this.buildField(query) || "default";
         await this.redis.hset(key, field, JSON.stringify(value));
         await this.redis.expire(key, ttl);
@@ -88,7 +86,7 @@ export class RedisHelper {
         key: string,
         query: Record<string, unknown>
     ): Promise<T | null> {
-        const field = this.buildField(query) || "default"; // CHANGED: age hardcoded default chilo
+        const field = this.buildField(query) || "default";
         const rawData = await this.redis.hget(key, field);
         if (!rawData) return null;
 
@@ -100,9 +98,6 @@ export class RedisHelper {
 
     // Delete keys by pattern
     async keyDelete(pattern: string): Promise<void> {
-        // CHANGED: age `.scanStream(...).toArray()` chilo — eta Node.js er
-        // notun stream/promises feature er upor nirbhorshil, purono Node version
-        // e fail korte pare. Event-based collection beshi reliable/cross-version.
         const keys: string[] = [];
         const stream = this.redis.scanStream({ match: pattern });
 
@@ -119,7 +114,7 @@ export class RedisHelper {
         await pipeline.exec();
     }
 
-    async del(key: string, query?: Record<string, any>): Promise<void> {
+    async del(key: string, query?: Record<string, unknown>): Promise<void> {
         const finalKey = this.buildKey(key, query);
         await this.redis.del(finalKey);
     }
