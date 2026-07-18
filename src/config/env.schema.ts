@@ -7,6 +7,8 @@ const envSchema = z
       .default("development"),
     APP_NAME: z.string().default("node-pg-api"),
 
+    LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+
     // those are database config
     DATABASE_HOST: z.string(),
     DATABASE_PORT: z.coerce.number().default(5432),

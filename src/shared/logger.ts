@@ -7,7 +7,7 @@ const logDir = path.join(process.cwd(), "logs");
 
 export const logger = pino(
   {
-    level: isProd ? "info" : "debug",
+    level: config.log_level,
     base: { service: config?.app?.name || "node-pg-api" },
     timestamp: pino.stdTimeFunctions.isoTime,
     redact: {

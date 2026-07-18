@@ -3,6 +3,7 @@ import config from "./config";
 import pool from "./db";
 import logger from "./shared/logger";
 import http from "http";
+import { initSocketServer, closeSocketServer } from "./socket/socket.server"; // NEW: socket.io init/cleanup functions import kora hoyeche
 
 let server: http.Server | undefined;
 
@@ -11,7 +12,11 @@ async function main() {
     await pool.query("SELECT 1");
     logger.info("Connected to PostgreSQL");
 
-    server = app.listen(config.port, config.ip_address, () => {
+    server = http.createServer(app);
+    await initSocketServer(server);
+    logger.info("Socket.io initialized");
+
+    server.listen(config.port, config.ip_address, () => {
       logger.info(
         `Server is running on ${`http://${config.ip_address}:${config.port}`}`
       );
@@ -72,6 +77,9 @@ async function shutdown(signal: string): Promise<void> {
   forceExit.unref();
 
   try {
+    await withTimeout(closeSocketServer(), 5_000, "Socket.io close");
+    logger.info("Socket.io closed");
+
     if (server && server.listening) {
       server.closeIdleConnections?.();
       const killSwitch = setTimeout(() => {

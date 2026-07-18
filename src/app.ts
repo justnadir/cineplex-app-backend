@@ -8,9 +8,9 @@ import { welcome } from "./utils/welcome";
 import { helmetOptions } from "./config/helmet";
 import { corsOptions } from "./config/cors";
 import { globalLimiter } from "./config/globalLimiter";
-
+// import "./types/express.d.ts";
 dotenv.config();
-import "./types/express";
+
 const app = express();
 
 // project tech history forensics:

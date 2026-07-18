@@ -13,6 +13,7 @@ const config = {
   node_env: env.NODE_ENV,
   ip_address: env.MACHINE_IP,
   port: env.PORT,
+  log_level: env.LOG_LEVEL,
 
   cors: {
     prod_origins: env.PROD_ORIGINS,
