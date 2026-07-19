@@ -1,10 +1,10 @@
 import { Router } from "express";
-import validateRequest from "../../middlewares/validateRequest";
-import { authLimiter } from "../../middlewares/rateLimiter";
+import validateRequest from "../../middlewares/request-validator.middleware";
+import { authLimiter } from "../../middlewares/rate-limiter.middleware";
 import { RefreshTokenController } from "./refresh_token.controller";
 import { RefreshTokenValidator } from "./refresh_token.validator";
-import { AuthMiddleware } from "../../middlewares/auth";
-import { csrfProtection } from "../../middlewares/csrf";
+import { AuthMiddleware } from "../../middlewares/authentication-middlware";
+import { csrfProtection } from "../../middlewares/csrf-protection.middleware";
 
 export class RefreshTokenRoutes {
   public router: Router;

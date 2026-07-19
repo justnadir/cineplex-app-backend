@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { UserController } from "./user.controller";
 import { UserValidator } from "./user.validator";
-import validateRequest from "../../middlewares/validateRequest";
-import { createRateLimiter } from "../../middlewares/rateLimiter";
-import { AuthMiddleware } from "../../middlewares/auth";
+import validateRequest from "../../middlewares/request-validator.middleware";
+import { createRateLimiter } from "../../middlewares/rate-limiter.middleware";
+import { AuthMiddleware } from "../../middlewares/authentication-middlware";
 import { USER_ROLES } from "../../enums";
 
 export class UserRoutes {

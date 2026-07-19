@@ -1,4 +1,5 @@
 import pool from "../../db";
+import { getClient } from "../../db/transaction-context";
 import { IUser, ICreateUser } from "./user.interface";
 
 export class UserRepository {
@@ -7,7 +8,8 @@ export class UserRepository {
   async create(
     payload: ICreateUser & { password_hash: string }
   ): Promise<IUser | undefined> {
-    const result = await this.pool.query<IUser>(
+    const client = getClient(this.pool);
+    const result = await client.query<IUser>(
       `INSERT INTO users (name, email, phone, password_hash)
       VALUES ($1, $2, $3, $4)
       RETURNING *

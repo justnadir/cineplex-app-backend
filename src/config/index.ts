@@ -46,7 +46,7 @@ const config = {
     accessExpiresIn: env.JWT_ACCESS_EXPIRES_IN,
     refreshExpiresDays: env.JWT_REFRESH_EXPIRES_DAYS,
   },
-  email: {
+  smtp: {
     from: env.EMAIL_FROM,
     user: env.EMAIL_USER,
     port: env.EMAIL_PORT,

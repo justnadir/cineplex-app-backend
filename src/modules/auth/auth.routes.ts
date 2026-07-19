@@ -1,12 +1,15 @@
 import { Router } from "express";
-import fileUploadHandler from "../../middlewares/fileUploaderHandler";
-import validateRequest from "../../middlewares/validateRequest";
-import { createRateLimiter, writeLimiter } from "../../middlewares/rateLimiter";
-import { AuthMiddleware } from "../../middlewares/auth";
+import fileUploadHandler from "../../middlewares/file-upload.middleware";
+import validateRequest from "../../middlewares/request-validator.middleware";
+import {
+  createRateLimiter,
+  writeLimiter,
+} from "../../middlewares/rate-limiter.middleware";
+import { AuthMiddleware } from "../../middlewares/authentication-middlware";
 import { AuthController } from "./auth.controller";
 import { AuthValidator } from "./auth.validator";
 
-export class NewsRoutes {
+export class AuthRoutes {
   public router: Router;
   private authController: AuthController;
   private authMiddleware: AuthMiddleware;
@@ -74,4 +77,4 @@ export class NewsRoutes {
   }
 }
 
-export default new NewsRoutes().router;
+export default new AuthRoutes().router;

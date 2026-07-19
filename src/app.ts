@@ -3,12 +3,18 @@ import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import requestLogger from "./middlewares/requestLogger";
+import requestLogger from "./middlewares/request-logger.middleware";
 import { welcome } from "./utils/welcome";
 import { helmetOptions } from "./config/helmet";
 import { corsOptions } from "./config/cors";
 import { globalLimiter } from "./config/globalLimiter";
-// import "./types/express.d.ts";
+import router from "./routes";
+import * as queues from "./shared/queue/manifest";
+import { createBullBoard } from "@bull-board/api";
+import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
+import { ExpressAdapter } from "@bull-board/express";
+import ErrorHandler from "./middlewares/error-handler.middleware";
+
 dotenv.config();
 
 const app = express();
@@ -29,8 +35,20 @@ app.use(express.json());
 app.use(requestLogger);
 app.use(cookieParser());
 
+app.use("/api/v1", router);
+
+const serverAdapter = new ExpressAdapter();
+serverAdapter.setBasePath("/admin/queues");
+createBullBoard({
+  queues: Object.values(queues).map((q) => new BullMQAdapter(q as any)),
+  serverAdapter,
+});
+app.use("/admin/queues", serverAdapter.getRouter());
+
 app.get("/", (_req: Request, res: Response) => {
   res.send(welcome());
 });
+
+app.use(ErrorHandler);
 
 export default app;

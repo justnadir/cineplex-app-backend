@@ -1,12 +1,15 @@
 import pool from "../../db";
+import { getClient } from "../../db/transaction-context";
 import { ICreateOtp, IOtp } from "./otp.interface";
 
 export class OtpRepository {
   private pool = pool;
 
   async create(payload: ICreateOtp): Promise<IOtp | undefined> {
+    const client = getClient(this.pool);
+
     const expiredAt = new Date(Date.now() + 5 * 60 * 1000);
-    const result = await this.pool.query<IOtp>(
+    const result = await client.query<IOtp>(
       `INSERT INTO otps (user_id, otp_hash, purpose, expires_at)
              VALUES ($1, $2, $3, $4)
              RETURNING *

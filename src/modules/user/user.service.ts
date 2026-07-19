@@ -6,6 +6,9 @@ import { OTP_PURPOSE } from "../../enums";
 import { OtpGeneratorService } from "../../utils/otp";
 import { OtpRepository } from "../otp/otp.repository";
 import { HashPasswordService } from "../../utils/hash_password";
+import { runInTransaction } from "../../db/transaction-context";
+import pool from "../../db";
+import { emailQueue } from "../../shared/email/email.queue";
 
 export class UserService {
   private userRepository = new UserRepository();
@@ -14,11 +17,9 @@ export class UserService {
   private otpRepository = new OtpRepository();
 
   // Create a new user in the database, ensuring uniqueness by email
-  async createUserToDB(payload: ICreateUser): Promise<IUser | undefined> {
-    const otp = this.otpGenerator.generateOTP() as number;
-
-    const password_hash = await this.hashPasswordService.hash(payload.password);
-
+  async createUserToDB(
+    payload: ICreateUser & { password_hash: string }
+  ): Promise<IUser | undefined> {
     const existing = await this.userRepository.uniqueByEmail(payload.email);
     if (existing) {
       throw new ApiError(
@@ -27,20 +28,36 @@ export class UserService {
       );
     }
 
-    const user = await this.userRepository.create({
-      ...payload,
-      password_hash,
+    const user = await runInTransaction(pool, async () => {
+      const createdUser = await this.userRepository.create(payload);
+
+      if (!createdUser) {
+        throw new ApiError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          "Failed to create user"
+        );
+      }
+
+      const otp = this.otpGenerator.generateOTP();
+      const otpHash = this.otpGenerator.hashOtp(otp.toString());
+
+      await this.otpRepository.create({
+        user_id: createdUser.id,
+        otp_hash: otpHash,
+        purpose: OTP_PURPOSE.VERIFY_EMAIL,
+      });
+
+      return { createdUser, otp };
     });
 
-    const otpPayload = {
-      user_id: user?.id,
-      otp_hash: this?.otpGenerator?.hashOtp(otp.toString()),
-      purpose: OTP_PURPOSE.VERIFY_EMAIL,
-    };
+    await emailQueue.add("otp-verification", {
+      to: payload.email,
+      subject: "Verify your Cineplex Account",
+      template: "welcome",
+      context: { name: payload.name, otp: user?.otp },
+    });
 
-    await this.otpRepository.create(otpPayload);
-
-    return user;
+    return user?.createdUser;
   }
 
   // update password

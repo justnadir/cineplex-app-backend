@@ -1,7 +1,20 @@
-import { DatabaseError } from "pg";
 import { IErrorMessage, IGenericErrorResponse } from "../types/errors.types";
 
-const handlePostgresError = (error: DatabaseError): IGenericErrorResponse => {
+type PostgresLikeError = Error & {
+  code?: string;
+  constraint?: string;
+  column?: string;
+  detail?: string;
+  hint?: string;
+  position?: string;
+  table?: string;
+  schema?: string;
+  severity?: string;
+};
+
+const handlePostgresError = (
+  error: PostgresLikeError
+): IGenericErrorResponse => {
   const errorMessages: IErrorMessage[] = [];
 
   const field = error.column ?? error.constraint ?? "";

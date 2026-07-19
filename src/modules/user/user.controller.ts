@@ -3,12 +3,16 @@ import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import { UserService } from "./user.service";
+import { HashPasswordService } from "../../utils/hash_password";
 
 export class UserController {
   private userService = new UserService();
+  private hashPasswordService = new HashPasswordService();
 
   create = catchAsync(async (req: Request, res: Response) => {
-    await this.userService.createUserToDB(req.body);
+    const { password, ...restPayload } = req.body;
+    const password_hash = await this.hashPasswordService.hash(password);
+    await this.userService.createUserToDB({ ...restPayload, password_hash });
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,

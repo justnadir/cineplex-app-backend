@@ -5,8 +5,7 @@ export const csrfProtection = (
   res: Response,
   next: NextFunction
 ) => {
-  const cookieCsrfToken = req.cookies?.csrfToken;
-  console.log(cookieCsrfToken);
+  const cookieCsrfToken = req?.cookies?.csrfToken;
 
   if (!cookieCsrfToken) {
     return res.status(403).json({

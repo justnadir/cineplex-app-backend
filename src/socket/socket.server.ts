@@ -9,9 +9,6 @@ let io: Server | undefined;
 let pubClient: ReturnType<typeof redisClient.duplicate>;
 let subClient: ReturnType<typeof redisClient.duplicate>;
 
-let activeConnections = 0;
-let statsInterval: ReturnType<typeof setInterval> | undefined;
-
 export const initSocketServer = async (
   httpServer: HttpServer
 ): Promise<Server> => {
@@ -44,20 +41,12 @@ export const initSocketServer = async (
     const userId = socket.data.userId as number;
     socket.join(`user:${userId}`);
 
-    activeConnections++;
-
     logger.debug(`Socket connected: ${socket.id}, user: ${userId}`);
 
     socket.on("disconnect", (reason) => {
-      activeConnections--;
       logger.debug(`Socket disconnected: ${socket.id}, reason: ${reason}`);
     });
   });
-
-  statsInterval = setInterval(() => {
-    logger.info(`Active socket connections: ${activeConnections}`);
-  }, 60_000);
-  statsInterval.unref();
 
   return io;
 };
@@ -70,8 +59,6 @@ export const getIO = (): Server => {
 
 // graceful shutdown
 export const closeSocketServer = async (): Promise<void> => {
-  if (statsInterval) clearInterval(statsInterval);
-
   if (io) {
     await new Promise<void>((resolve) => io!.close(() => resolve()));
     logger.info("Socket.io: server closed");
