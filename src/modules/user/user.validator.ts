@@ -24,28 +24,35 @@ export class UserValidator {
   });
 
   createUserZodSchema = z.object({
-    body: UserValidator.userBody.extend({
-      role: z
-        .enum(USER_ROLES, { error: "role must be USER, ADMIN or SUPER_ADMIN" })
-        .optional(),
-      password: z
-        .string()
-        .trim()
-        .min(6, { error: "Password must be at least 6 characters" })
-        .max(12, { error: "Password must be at most 12 characters" }),
-    }),
+    body: UserValidator.userBody
+      .extend({
+        role: z
+          .enum(USER_ROLES, {
+            error: "role must be USER, ADMIN or SUPER_ADMIN",
+          })
+          .optional(),
+        password: z
+          .string()
+          .trim()
+          .min(6, { error: "Password must be at least 6 characters" })
+          .max(12, { error: "Password must be at most 12 characters" }),
+      })
+      .strict(),
   });
 
   updateUserZodSchema = z.object({
     params: positiveIntIdSchema("User ID"),
-    body: UserValidator.userBody.partial().extend({
-      avatar: z
-        .string()
-        .trim()
-        .url("avatar must be a valid URL")
-        .max(2048, { error: "Avatar must be at most 2048 characters" })
-        .optional(),
-    }),
+    body: UserValidator.userBody
+      .partial()
+      .extend({
+        avatar: z
+          .string()
+          .trim()
+          .url("avatar must be a valid URL")
+          .max(2048, { error: "Avatar must be at most 2048 characters" })
+          .optional(),
+      })
+      .strict(),
   });
 
   retrievedProfileZodSchema = z.object({

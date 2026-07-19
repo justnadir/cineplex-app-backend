@@ -43,7 +43,7 @@ CREATE TABLE
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
-CREATE INDEX idx_otps_user_purpose_used ON otps (user_id, purpose, is_used);
+CREATE INDEX idx_otps_lookup ON otps (user_id, purpose, is_used, expires_at);
 
 -- refresh_tokens table
 CREATE TABLE
@@ -60,7 +60,7 @@ CREATE TABLE
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
-CREATE INDEX idx_refresh_tokens_user_revoked ON refresh_tokens (user_id, is_revoked);
+CREATE INDEX idx_refresh_tokens_lookup ON refresh_tokens (user_id, is_revoked, expires_at);
 
 -- verification_tokens
 CREATE TABLE
@@ -82,4 +82,67 @@ CREATE TABLE
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
-CREATE INDEX idx_verification_tokens_token_purpose_used ON verification_tokens (token_hash, purpose, is_used);
+CREATE INDEX idx_refresh_tokens_lookup ON verification_tokens (token_hash, purpose, is_used, expires_at);
+
+-- BANNERS
+CREATE TABLE
+    IF NOT EXISTS banners (
+        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        banner_image TEXT NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'deleted')),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW ()
+    );
+
+CREATE INDEX idx_news_createAt ON banners (status, created_at);
+
+-- NEWS
+CREATE TABLE
+    IF NOT EXISTS news (
+        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        news_image TEXT NOT NULL,
+        content TEXT NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW ()
+    );
+
+CREATE INDEX idx_news_status_createAt ON news (created_at, status, created_at DESC);
+
+-- COMMENTS
+CREATE TABLE
+    IF NOT EXISTS comments (
+        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        news_id BIGINT NOT NULL REFERENCES news (id) ON DELETE CASCADE,
+        nick_name VARCHAR(50) NOT NULL,
+        email CITEXT NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+        content TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW ()
+    );
+
+CREATE INDEX idx_comments ON comments (news_id, created_at DESC);
+
+-- MOVIES
+CREATE TABLE
+    IF NOT EXISTS movies (
+        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        movie_poster TEXT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        category VARCHAR(10) NOT NULL DEFAULT '2D' CHECK (category IN ('2D', '3D')),
+        actor TEXT NOT NULL,
+        genre VARCHAR(200) NOT NULL release_date DATE NOT NULL,
+        duration VARCHAR(20) NOT NULL,
+        language VARCHAR(50) NOT NULL,
+        synopsis TEXT NOT NULL,
+        trailer TEXT NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW (),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW ()
+    );
+
+CREATE INDEX idx_movies ON movies (status, created_at DESC);

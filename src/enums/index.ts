@@ -18,3 +18,8 @@ export enum OTP_PURPOSE {
   DELETE_ACCOUNT = "delete_account",
   RECOVERY_ACCOUNT = "recovery_account",
 }
+
+export enum BANNER_STATUS {
+  ACTIVE = "active",
+  DELETED = "deleted",
+}
