@@ -34,7 +34,7 @@ pool.query = function patchedQuery(...args: any[]): any {
     rawQuery(
       ...(args as Parameters<typeof rawQuery>)
     ) as unknown as Promise<unknown>
-  ).catch((err: any) => {
+  ).catch((err) => {
     if (err && typeof err === "object") {
       const text = typeof args[0] === "string" ? args[0] : args[0]?.text;
       if (text && !err.sql) err.sql = text;

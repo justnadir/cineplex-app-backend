@@ -1,6 +1,6 @@
-import { QueryResultRow } from 'pg';
-import pool from '../db';
-import { IPagination } from '../types/pagination';
+import { QueryResultRow } from "pg";
+import pool from "../db";
+import { IPagination } from "../types/pagination";
 
 /**
  * Use:
@@ -22,13 +22,13 @@ class QueryBuilder {
   private values: any[] = [];
 
   // sort + pagination
-  private orderBy = 'created_at DESC';
+  private orderBy = "created_at DESC";
   private page = 1;
   private limit = 10;
   private usePagination = false;
 
   // SELECT column list (default sob column)
-  private selectColumns = '*';
+  private selectColumns = "*";
 
   constructor(table: string, query: Record<string, any> = {}) {
     this.table = table;
@@ -61,7 +61,7 @@ class QueryBuilder {
   select(columns: string[]) {
     const safe = columns.filter((c) => QueryBuilder.isSafeIdentifier(c));
     if (safe.length) {
-      this.selectColumns = safe.join(', ');
+      this.selectColumns = safe.join(", ");
     }
     return this;
   }
@@ -71,9 +71,9 @@ class QueryBuilder {
     if (this.query.searchTerm) {
       const term = `%${this.query.searchTerm}%`;
       const ors = searchableFields.map(
-        (field) => `${field} ILIKE ${this.add(term)}`,
+        (field) => `${field} ILIKE ${this.add(term)}`
       );
-      this.conditions.push(`(${ors.join(' OR ')})`);
+      this.conditions.push(`(${ors.join(" OR ")})`);
     }
     return this;
   }
@@ -86,26 +86,26 @@ class QueryBuilder {
   filter(
     allowedFields?: string[],
     extraFilters: Record<string, any> = {},
-    priceField?: string,
+    priceField?: string
   ) {
     const queryObj = { ...this.query, ...extraFilters };
 
     // egula filter na, alada kaje lage — tai bad
     const excludedFields = [
-      'page',
-      'limit',
-      'searchTerm',
-      'sortBy',
-      'startDate',
-      'endDate',
-      'minPrice',
-      'maxPrice',
+      "page",
+      "limit",
+      "searchTerm",
+      "sortBy",
+      "startDate",
+      "endDate",
+      "minPrice",
+      "maxPrice",
     ];
     excludedFields.forEach((el) => delete queryObj[el]);
 
     // ---- exact match (e.g. ?category=2D&status=published) ----
     for (const [key, value] of Object.entries(queryObj)) {
-      if (value === undefined || value === '') continue;
+      if (value === undefined || value === "") continue;
       if (allowedFields && !allowedFields.includes(key)) continue; // safety
       // Defense-in-depth: column name interpolate hocche (value na), tai
       // allow-list bhule gele o arbitrary/malicious identifier jate SQL-e
@@ -127,10 +127,14 @@ class QueryBuilder {
     // Na dile skip — jemon movies, jate `price` column nei.
     if (priceField) {
       if (this.query.minPrice) {
-        this.conditions.push(`${priceField} >= ${this.add(Number(this.query.minPrice))}`);
+        this.conditions.push(
+          `${priceField} >= ${this.add(Number(this.query.minPrice))}`
+        );
       }
       if (this.query.maxPrice) {
-        this.conditions.push(`${priceField} <= ${this.add(Number(this.query.maxPrice))}`);
+        this.conditions.push(
+          `${priceField} <= ${this.add(Number(this.query.maxPrice))}`
+        );
       }
     }
 
@@ -143,9 +147,9 @@ class QueryBuilder {
    *        Ekhane price/onyo column dao SHUDHU jodi table-e oi column thake.
    * Unknown sortBy ashle safely `created_at DESC` e fallback kore (crash na).
    */
-  sort(sortMap: Record<string, string> = { recent: 'created_at DESC' }) {
+  sort(sortMap: Record<string, string> = { recent: "created_at DESC" }) {
     const key = this.query.sortBy?.toLowerCase();
-    this.orderBy = (key && sortMap[key]) || 'created_at DESC';
+    this.orderBy = (key && sortMap[key]) || "created_at DESC";
     return this;
   }
 
@@ -171,8 +175,8 @@ class QueryBuilder {
   /** conditions thakle "WHERE a AND b ..." banay, na thakle empty string */
   private buildWhere(): string {
     return this.conditions.length
-      ? `WHERE ${this.conditions.join(' AND ')}`
-      : '';
+      ? `WHERE ${this.conditions.join(" AND ")}`
+      : "";
   }
 
   /** final SELECT cholay ar rows return kore */

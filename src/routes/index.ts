@@ -1,11 +1,11 @@
-import express from "express";
+import express, { type Router } from "express";
 import UserRoutes from "../modules/user/user.routes";
 import AuthRoutes from "../modules/auth/auth.routes";
 import BannerRoutes from "../modules/banner/banner.routes";
 import NewsRoutes from "../modules/news/news.routes";
 const router = express.Router();
 
-export const apiRoutes: { path: string; route: any }[] = [
+export const apiRoutes: Array<{ path: string; route: Router }> = [
   { path: "/user", route: UserRoutes },
   { path: "/auth", route: AuthRoutes },
   { path: "/banner", route: BannerRoutes },

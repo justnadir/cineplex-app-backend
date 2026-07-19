@@ -40,7 +40,7 @@ app.use("/api/v1", router);
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath("/admin/queues");
 createBullBoard({
-  queues: Object.values(queues).map((q) => new BullMQAdapter(q as any)),
+  queues: Object.values(queues).map((q) => new BullMQAdapter(q)),
   serverAdapter,
 });
 app.use("/admin/queues", serverAdapter.getRouter());
