@@ -11,6 +11,11 @@ export enum ACCOUNT_STATUS {
   DELETED = "deleted",
 }
 
+export enum NEWS_STATUS {
+  DRAFT = "draft",
+  PUBLISHED = "published",
+}
+
 export enum OTP_PURPOSE {
   VERIFY_EMAIL = "email_verify",
   VERIFY_PHONE = "phone_verify",
