@@ -15,11 +15,11 @@ import { IPagination } from "../types/pagination";
  */
 class QueryBuilder {
   private table: string;
-  private query: Record<string, any>;
+  private query: Record<string, unknown>;
 
   // WHERE conditions + tader value gula (parameterized)
   private conditions: string[] = [];
-  private values: any[] = [];
+  private values: unknown[] = [];
 
   // sort + pagination
   private orderBy = "created_at DESC";
@@ -30,7 +30,7 @@ class QueryBuilder {
   // SELECT column list (default sob column)
   private selectColumns = "*";
 
-  constructor(table: string, query: Record<string, any> = {}) {
+  constructor(table: string, query: Record<string, unknown> = {}) {
     this.table = table;
     this.query = query;
   }
@@ -47,7 +47,7 @@ class QueryBuilder {
    * Ekta value ke parameter list e add kore tar placeholder ($1, $2...) return kore.
    * Ei helper tai SQL injection theke bachay.
    */
-  private add(value: any): string {
+  private add(value: unknown): string {
     this.values.push(value);
     return `$${this.values.length}`;
   }
@@ -69,7 +69,7 @@ class QueryBuilder {
   /** searchTerm thakle multiple field e ILIKE diye OR search (Mongo-r $or + $regex er moto) */
   search(searchableFields: string[]) {
     if (this.query.searchTerm) {
-      const term = `%${this.query.searchTerm}%`;
+      const term = `%${String(this.query.searchTerm)}%`;
       const ors = searchableFields.map(
         (field) => `${field} ILIKE ${this.add(term)}`
       );
@@ -85,10 +85,13 @@ class QueryBuilder {
    */
   filter(
     allowedFields?: string[],
-    extraFilters: Record<string, any> = {},
+    extraFilters: Record<string, unknown> = {},
     priceField?: string
   ) {
-    const queryObj = { ...this.query, ...extraFilters };
+    const queryObj: Record<string, unknown> = {
+      ...this.query,
+      ...extraFilters,
+    };
 
     // egula filter na, alada kaje lage — tai bad
     const excludedFields = [
@@ -126,12 +129,12 @@ class QueryBuilder {
     // Opt-in only: caller must pass `priceField` (table-e price column thakle).
     // Na dile skip — jemon movies, jate `price` column nei.
     if (priceField) {
-      if (this.query.minPrice) {
+      if (this.query.minPrice !== undefined) {
         this.conditions.push(
           `${priceField} >= ${this.add(Number(this.query.minPrice))}`
         );
       }
-      if (this.query.maxPrice) {
+      if (this.query.maxPrice !== undefined) {
         this.conditions.push(
           `${priceField} <= ${this.add(Number(this.query.maxPrice))}`
         );
@@ -148,7 +151,10 @@ class QueryBuilder {
    * Unknown sortBy ashle safely `created_at DESC` e fallback kore (crash na).
    */
   sort(sortMap: Record<string, string> = { recent: "created_at DESC" }) {
-    const key = this.query.sortBy?.toLowerCase();
+    const key =
+      typeof this.query.sortBy === "string"
+        ? this.query.sortBy.toLowerCase()
+        : undefined;
     this.orderBy = (key && sortMap[key]) || "created_at DESC";
     return this;
   }
@@ -180,7 +186,7 @@ class QueryBuilder {
   }
 
   /** final SELECT cholay ar rows return kore */
-  async execute<T extends QueryResultRow = any>(): Promise<T[]> {
+  async execute<T extends QueryResultRow = QueryResultRow>(): Promise<T[]> {
     let sql = `SELECT ${this.selectColumns} FROM ${this.table} ${this.buildWhere()} ORDER BY ${this.orderBy}`;
 
     if (this.usePagination) {
@@ -189,14 +195,17 @@ class QueryBuilder {
       sql += ` LIMIT ${this.limit} OFFSET ${offset}`;
     }
 
-    const result = await pool.query<T>(sql, this.values);
+    const result = await pool.query<T>(sql, this.values as unknown[]);
     return result.rows;
   }
 
   /** same filter diye total count + page info dey (frontend pagination er jonno) */
   async getPaginationInfo(): Promise<IPagination> {
     const sql = `SELECT COUNT(*)::int AS total FROM ${this.table} ${this.buildWhere()}`;
-    const result = await pool.query<{ total: number }>(sql, this.values);
+    const result = await pool.query<{ total: number }>(
+      sql,
+      this.values as unknown[]
+    );
 
     const total = result.rows[0]?.total ?? 0;
     const totalPage = Math.ceil(total / this.limit);

@@ -19,7 +19,7 @@ export class NewsRepository {
   }
 
   async retrieve(
-    query: Record<string, any>
+    query: Partial<INews>
   ): Promise<{ news: INews[]; pagination: IPagination }> {
     const builder = new QueryBuilder("news", query)
       .search(["title", "content"])

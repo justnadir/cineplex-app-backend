@@ -28,3 +28,9 @@ export enum BANNER_STATUS {
   ACTIVE = "active",
   DELETED = "deleted",
 }
+
+export enum COMMENT_STATUS {
+  PENDING = "pending",
+  APPROVED = "approved",
+  REJECTED = "rejected",
+}

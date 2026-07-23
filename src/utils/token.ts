@@ -36,7 +36,9 @@ export class TokenService {
     return jwt.sign(payload, this.ACCESS_SECRET, options);
   }
 
-  async generateRefreshToken(payload: IRefreshTokenPayload): Promise<string> {
+  async generateRefreshToken(
+    payload: Partial<IRefreshTokenPayload>
+  ): Promise<string> {
     const options: SignOptions = {
       expiresIn: this.REFRESH_EXPIRES_DAYS as SignOptions["expiresIn"],
     };
@@ -53,13 +55,13 @@ export class TokenService {
     );
 
     const refresh_token_payload: ICreateRefreshToken = {
-      user_id: payload.user_id,
+      user_id: Number(payload.user_id),
       token_hash: this.hash(refresh_token),
       expires_at: expired_at,
-      device_info: payload?.device_info,
-      ip_address: payload.ip_address,
+      device_info: payload?.device_info ?? "unknown",
+      ip_address: payload.ip_address ?? "unknown",
       jti: jti,
-      city: payload.city,
+      city: payload.city ?? "unknown",
     };
 
     await this.refreshTokenRepository.create(refresh_token_payload);

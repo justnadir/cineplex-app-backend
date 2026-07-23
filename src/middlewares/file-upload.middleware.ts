@@ -33,7 +33,7 @@ const fileUploadHandler = () => {
 
   //create filename
   const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (_req, file, cb) => {
       const folderName = uploadDirectories[file.fieldname];
 
       if (!folderName) {
@@ -71,7 +71,11 @@ const fileUploadHandler = () => {
   };
 
   //file filter
-  const filterFilter = (_req: Request, file: any, cb: FileFilterCallback) => {
+  const filterFilter = (
+    _req: Request,
+    file: Express.Multer.File,
+    cb: FileFilterCallback
+  ) => {
     //allowed mime types
     const allowedTypes = allowedMimeTypes[file.fieldname];
 

@@ -4,10 +4,10 @@ export interface IRefreshToken {
   token_hash: string;
   expires_at: Date;
   is_revoked: boolean;
-  device_info: string | null;
-  ip_address: string | null;
+  device_info: string;
+  ip_address: string;
   jti: string;
-  city: string | null;
+  city: string;
   created_at: Date;
 }
 

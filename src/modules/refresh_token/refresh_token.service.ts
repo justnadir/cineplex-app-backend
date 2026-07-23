@@ -2,12 +2,16 @@ import { StatusCodes } from "http-status-codes";
 import ApiError from "../../errors/ApiErrors";
 import { TokenService } from "../../utils/token";
 import { RefreshTokenRepository } from "../refresh_token/refresh_token.repository";
+import { ICreateRefreshToken } from "./refresh_token.interface";
 
 export class RefreshTokenService {
   private tokenService = new TokenService();
   private refreshTokenRepository = new RefreshTokenRepository();
 
-  async regenerateToken(refreshTokenPayload: string, payload: any) {
+  async regenerateToken(
+    refreshTokenPayload: string,
+    payload: ICreateRefreshToken
+  ) {
     if (!refreshTokenPayload) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid Token");
     }
@@ -32,8 +36,8 @@ export class RefreshTokenService {
     });
     const refreshToken = await this.tokenService.generateRefreshToken({
       ...payload,
-      user_id: isValidUser.user_id,
-      role: isValidUser.role,
+      user_id: isValidUser?.user_id,
+      role: isValidUser?.role,
     });
     const isDeleted = await this.refreshTokenRepository.deleteToken(
       invalidTokenToDB.id,

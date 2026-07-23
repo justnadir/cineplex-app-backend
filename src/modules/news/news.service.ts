@@ -26,7 +26,7 @@ export class NewsService {
   }
 
   async retrieveFromDB(
-    query: Record<string, any>
+    query: Partial<INews>
   ): Promise<{ news: INews[]; pagination: IPagination }> {
     const cached = await this.redisHelper.hget<{
       news: INews[];
