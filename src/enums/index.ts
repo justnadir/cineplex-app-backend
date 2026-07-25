@@ -34,3 +34,13 @@ export enum COMMENT_STATUS {
   APPROVED = "approved",
   REJECTED = "rejected",
 }
+
+export enum MOVIE_STATUS {
+  DRAFT = "draft",
+  PUBLISHED = "published",
+}
+
+export enum MOVIE_CATEGORY {
+  "2D" = "2D",
+  "3D" = "3D",
+}

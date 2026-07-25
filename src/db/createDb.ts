@@ -3,7 +3,7 @@ import config from "../config";
 import logger from "../shared/logger";
 
 const createDatabase = async () => {
-  const dbName = config.app.name;
+  const dbName = config.database.name;
   if (!dbName) {
     throw new Error("DB_NAME is not set in .env");
   }

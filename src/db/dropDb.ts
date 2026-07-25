@@ -3,7 +3,7 @@ import config from "../config";
 import logger from "../shared/logger";
 
 const dropDatabase = async () => {
-  const dbName = config.app.name;
+  const dbName = config.database.name;
   if (!dbName) {
     throw new Error("DB_NAME is not set in .env");
   }
@@ -13,7 +13,7 @@ const dropDatabase = async () => {
     port: Number(config.database.port),
     user: config.database.user,
     password: config.database.password,
-    database: "postgres", // maintenance DB
+    database: config.database.name, // maintenance DB
   });
 
   await client.connect();

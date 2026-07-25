@@ -82,7 +82,7 @@ CREATE TABLE
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
-CREATE INDEX idx_refresh_tokens_lookup ON verification_tokens (token_hash, purpose, is_used, expires_at);
+CREATE INDEX idx_verification_tokens_lookup ON verification_tokens (token_hash, purpose, is_used, expires_at);
 
 -- BANNERS
 CREATE TABLE
@@ -134,8 +134,10 @@ CREATE TABLE
         movie_poster TEXT NOT NULL,
         title VARCHAR(255) NOT NULL,
         category VARCHAR(10) NOT NULL DEFAULT '2D' CHECK (category IN ('2D', '3D')),
+        admin_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
         actor TEXT NOT NULL,
-        genre VARCHAR(200) NOT NULL release_date DATE NOT NULL,
+        genre VARCHAR(200) NOT NULL,
+        release_date DATE NOT NULL,
         duration VARCHAR(20) NOT NULL,
         language VARCHAR(50) NOT NULL,
         synopsis TEXT NOT NULL,
