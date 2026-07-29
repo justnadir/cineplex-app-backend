@@ -1,22 +1,19 @@
 import path from "path";
 import { optimizeImage } from "../utils/imageOptimize";
-// upload field names (NOTE: the destination folder may differ, e.g. banner_image -> /banners)
-type IFolderName =
-  | "image"
-  | "media"
-  | "doc"
-  | "banner_image"
-  | "category_image"
-  | "movie_poster"
-  | "user"
-  | "news_image";
+import { FolderName } from "../types/upload-directories.types";
+
+type MulterFiles =
+  | Express.Multer.File[]
+  | { [fieldname: string]: Express.Multer.File[] }
+  | undefined;
 
 // single file
 export const getSingleFilePath = async (
-  files: Record<IFolderName, Express.Multer.File[]>,
-  fieldName: IFolderName
+  files: MulterFiles,
+  fieldName: FolderName
 ) => {
-  const fileField = files && files[fieldName];
+  const fileField =
+    files && !Array.isArray(files) ? files[fieldName] : undefined;
   if (fileField && Array.isArray(fileField) && fileField.length > 0) {
     // use multer's actual stored path so it works regardless of field/folder naming
     const originalFilePath = fileField[0]?.path;
@@ -33,10 +30,11 @@ export const getSingleFilePath = async (
 
 //multiple files
 export const getMultipleFilesPath = async (
-  files: Record<IFolderName, Express.Multer.File[]>,
-  fieldName: IFolderName
+  files: MulterFiles,
+  fieldName: FolderName
 ) => {
-  const folderFiles = files && files[fieldName];
+  const folderFiles =
+    files && !Array.isArray(files) ? files[fieldName] : undefined;
 
   if (folderFiles && Array.isArray(folderFiles)) {
     const optimizedPaths = await Promise.all(

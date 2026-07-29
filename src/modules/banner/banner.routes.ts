@@ -7,6 +7,8 @@ import validateRequest from "../../middlewares/request-validator.middleware";
 import { BannerValidator } from "./banner.validation";
 import { AuthMiddleware } from "../../middlewares/authentication-middlware";
 import { USER_ROLES } from "../../enums";
+import { csrfProtection } from "../../middlewares/csrf-protection.middleware";
+import { FOLDERS_NAMES } from "../../types/upload-directories.types";
 
 export class BannerRoutes {
   public router: Router;
@@ -23,13 +25,14 @@ export class BannerRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.get(
+    this.router.post(
       "/",
       this.authMiddleware.authenticate,
       this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+      csrfProtection,
       writeLimiter,
       fileUploadHandler(),
-      attachSingleFile("banner_image"),
+      attachSingleFile(FOLDERS_NAMES.banner_image),
       validateRequest(this.validator.createBannerZodSchema),
       this.bannerController.create
     );
@@ -39,7 +42,8 @@ export class BannerRoutes {
       "/admin-banner",
       this.authMiddleware.authenticate,
       this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
-      this.bannerController.retrieve
+      csrfProtection,
+      this.bannerController.adminRetrieve
     );
 
     this.router
@@ -47,15 +51,17 @@ export class BannerRoutes {
       .patch(
         this.authMiddleware.authenticate,
         this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+        csrfProtection,
         writeLimiter,
         fileUploadHandler(),
-        attachSingleFile("banner_image"),
+        attachSingleFile(FOLDERS_NAMES.banner_image),
         validateRequest(this.validator.updateBannerZodSchema),
         this.bannerController.update
       )
       .delete(
         this.authMiddleware.authenticate,
         this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+        csrfProtection,
         writeLimiter,
         validateRequest(this.validator.bannerIdParamsSchema),
         this.bannerController.delete

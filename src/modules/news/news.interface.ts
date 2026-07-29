@@ -5,6 +5,7 @@ export interface INews {
   title: string;
   news_image: string;
   content: string;
+  user_id: number;
   status: NEWS_STATUS;
   created_at: Date;
   updated_at: Date;

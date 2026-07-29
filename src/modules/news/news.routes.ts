@@ -8,6 +8,9 @@ import { validIdParamCheckSchema } from "../../validators";
 import { NewsValidator } from "./news.validation";
 import { AuthMiddleware } from "../../middlewares/authentication-middlware";
 import { USER_ROLES } from "../../enums";
+import { cleanupUploadOnError } from "../../middlewares/cleanup-upload-on-error.middleware";
+import { FOLDERS_NAMES } from "../../types/upload-directories.types";
+import { csrfProtection } from "../../middlewares/csrf-protection.middleware";
 
 export class NewsRoutes {
   public router: Router;
@@ -24,30 +27,30 @@ export class NewsRoutes {
   }
 
   private initializeRoutes(): void {
-    // GET routes public; create/update/delete admin-only.
-
     this.router.post(
       "/create-news",
       this.authMiddleware.authenticate,
       this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+      csrfProtection,
       writeLimiter,
       fileUploadHandler(),
-      attachSingleFile("news_image"),
+      attachSingleFile(FOLDERS_NAMES.news_image),
       validateRequest(this.validator.createNewsZodSchema),
-      this.newsController.create
+      this.newsController.create,
+      cleanupUploadOnError
     );
 
     this.router.get(
       "/admin-news",
       this.authMiddleware.authenticate,
       this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+      csrfProtection,
       validateRequest(this.validator.adminNewsQuerySchema),
       this.newsController.retrieve
     );
 
     this.router.get(
       "/public-news",
-      this.authMiddleware.authenticate,
       validateRequest(this.validator.publicNewsQuerySchema),
       this.newsController.retrieve
     );
@@ -61,15 +64,18 @@ export class NewsRoutes {
       .patch(
         this.authMiddleware.authenticate,
         this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+        csrfProtection,
         writeLimiter,
         fileUploadHandler(),
-        attachSingleFile("news_image"),
+        attachSingleFile(FOLDERS_NAMES.news_image),
         validateRequest(this.validator.updateNewsZodSchema),
-        this.newsController.update
+        this.newsController.update,
+        cleanupUploadOnError
       )
       .delete(
         this.authMiddleware.authenticate,
         this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+        csrfProtection,
         writeLimiter,
         validateRequest(validIdParamCheckSchema),
         this.newsController.delete

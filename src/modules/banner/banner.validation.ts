@@ -20,13 +20,17 @@ export class BannerValidator {
   });
 
   updateBannerZodSchema = z.object({
-    body: BannerValidator.bannerBody.partial().extend({
-      status: z
-        .enum(BANNER_STATUS, {
-          error: "Status must be either draft or published",
-        })
-        .optional(),
-    }),
+    params: idParamSchema,
+    body: BannerValidator.bannerBody
+      .partial()
+      .extend({
+        status: z
+          .enum(BANNER_STATUS, {
+            error: `Status must be ${Object.keys(BANNER_STATUS).join(", ").toLocaleLowerCase()}`,
+          })
+          .optional(),
+      })
+      .strict(),
   });
 
   bannerIdParamsSchema = z.object({

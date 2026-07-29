@@ -12,6 +12,11 @@ export const validIdParamCheckSchema = z.object({
   params: z.coerce.number().int().positive(),
 });
 
+export const passwordZodValidator = z
+  .string()
+  .trim()
+  .min(8, { error: "Password must be at least 8 characters" });
+
 // this validator works for any table which will be received any fereign key id in the params, e.g., /theater/:id/movie/:id, /news/:id/comment/:id, etc.
 export const positiveIntIdSchema = (fieldName: string) =>
   z.coerce

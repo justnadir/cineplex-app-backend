@@ -1,15 +1,19 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
+import { MulterError } from "multer";
 import { IErrorMessage } from "../types/errors.types";
 import handleZodError from "../errors/handleZodError";
 import handlePostgresError from "../errors/handlePostgresError";
 import handleMulterError from "../errors/handleMulterError";
-import { MulterError } from "multer";
 import ApiError from "../errors/ApiErrors";
 
 const isPostgresError = (err: unknown): err is Error & { code?: string } => {
   return (
-    err instanceof Error && typeof (err as { code?: unknown }).code === "string"
+    err instanceof Error &&
+    !(err instanceof MulterError) &&
+    !(err instanceof ApiError) &&
+    !(err instanceof ZodError) &&
+    typeof (err as { code?: unknown }).code === "string"
   );
 };
 
@@ -35,13 +39,13 @@ const ErrorHandler: ErrorRequestHandler = (
     statusCode = handled.statusCode;
     message = handled.message;
     errorMessages = handled.errorMessages;
-  } else if (isPostgresError(err)) {
-    const handled = handlePostgresError(err);
+  } else if (err instanceof MulterError) {
+    const handled = handleMulterError(err);
     statusCode = handled.statusCode;
     message = handled.message;
     errorMessages = handled.errorMessages;
-  } else if (err instanceof MulterError) {
-    const handled = handleMulterError(err);
+  } else if (isPostgresError(err)) {
+    const handled = handlePostgresError(err);
     statusCode = handled.statusCode;
     message = handled.message;
     errorMessages = handled.errorMessages;

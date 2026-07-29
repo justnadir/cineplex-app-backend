@@ -3,8 +3,6 @@ import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import { NewsService } from "./news.service";
-import getDeviceInfo from "../../utils/getDeviceInfo";
-import { getClientIp, getLocationFromIp } from "../../utils/getLocationFromIp";
 
 export class NewsController {
   private newsService: NewsService;
@@ -14,7 +12,10 @@ export class NewsController {
   }
 
   create = catchAsync(async (req: Request, res: Response) => {
-    const result = await this.newsService.createToDB(req.body);
+    const result = await this.newsService.createToDB({
+      ...req.body,
+      user_id: Number(req.user?.user_id),
+    });
 
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,
@@ -25,13 +26,6 @@ export class NewsController {
   });
 
   retrieve = catchAsync(async (req: Request, res: Response) => {
-    const userAgent = req.headers["user-agent"] || "";
-    const deviceInfo = getDeviceInfo(userAgent);
-    const ip = getClientIp(req);
-    const location = getLocationFromIp("72.167.221.185");
-    console.log(location);
-    console.log(ip);
-    console.log(deviceInfo);
     const result = await this.newsService.retrieveFromDB(req.query);
 
     sendResponse(res, {

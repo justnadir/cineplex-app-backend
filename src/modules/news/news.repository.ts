@@ -8,11 +8,11 @@ export class NewsRepository {
 
   async create(payload: ICreateNews): Promise<INews | undefined> {
     const result = await this.pool.query<INews>(
-      `INSERT INTO news (title, news_image, content)
-             VALUES ($1, $2, $3)
+      `INSERT INTO news (title, news_image, content, user_id)
+             VALUES ($1, $2, $3, $4)
              RETURNING *
             `,
-      [payload.title, payload.news_image, payload.content]
+      [payload.title, payload.news_image, payload.content, payload.user_id]
     );
 
     return result.rows[0];

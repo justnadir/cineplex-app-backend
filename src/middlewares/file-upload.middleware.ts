@@ -4,18 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import multer, { FileFilterCallback } from "multer";
 import path from "path";
 import ApiError from "../errors/ApiErrors";
-
-// maps the upload field name -> destination folder under /uploads
-const uploadDirectories: Record<string, string> = {
-  image: "image",
-  banner_image: "banners",
-  category_image: "categories",
-  movie_poster: "movies",
-  news_image: "news",
-  video: "video",
-  doc: "doc",
-  pdf: "pdf",
-};
+import { uploadDirectories } from "../types/upload-directories.types";
 
 const fileUploadHandler = () => {
   //create upload folder
@@ -34,7 +23,8 @@ const fileUploadHandler = () => {
   //create filename
   const storage = multer.diskStorage({
     destination: (_req, file, cb) => {
-      const folderName = uploadDirectories[file.fieldname];
+      const folderName =
+        uploadDirectories[file.fieldname as keyof typeof uploadDirectories];
 
       if (!folderName) {
         return cb(
@@ -62,12 +52,6 @@ const fileUploadHandler = () => {
     category_image: ["image/jpeg", "image/png", "image/jpg"],
     movie_poster: ["image/jpeg", "image/png", "image/jpg"],
     news_image: ["image/jpeg", "image/png", "image/jpg"],
-    pdf: ["application/pdf"],
-    doc: [
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ],
-    video: ["video/mp4", "video/mpeg"],
   };
 
   //file filter
@@ -106,7 +90,6 @@ const fileUploadHandler = () => {
     fileFilter: filterFilter,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB per file
   }).fields([
-    { name: "image", maxCount: 3 },
     { name: "banner_image", maxCount: 1 },
     { name: "category_image", maxCount: 1 },
     { name: "movie_poster", maxCount: 1 },

@@ -1,6 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
--- Super Admin Seed
 INSERT INTO
     users (
         name,
@@ -14,8 +11,8 @@ VALUES
     (
         'Super Admin',
         'superadmin@example.com',
-        crypt ('YourStrongPassword123!', gen_salt ('bf', 10)),
+        '$argon2id$v=19$m=19456,p=1,t=2$opN2ptddow/+wjiubEcjow$GmaGYG6MDZw6m98NsKU/S5mw4fNDWtvR6sOaTKoIFUs',
         'SUPER_ADMIN',
         'active',
         TRUE
-    )
+    );

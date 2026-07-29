@@ -30,14 +30,25 @@ export class BannerService {
     return banner;
   }
 
-  async retrieveFromDB() {
+  async publicBannerRetrieveFromDB() {
     const cached = await this.redisHelper.get<IBanner[]>("banners");
     if (cached) {
       return cached;
     }
 
-    const banners = await this.bannerRepository.retrieve();
+    const banners = await this.bannerRepository.publicBannerRetrieve();
     await this.redisHelper.set("banners", banners);
+    return banners;
+  }
+
+  async adminBannerRetrieveFromDB(query: Partial<IBanner>) {
+    const cached = await this.redisHelper.hget<IBanner[]>("banners", query);
+    if (cached) {
+      return cached;
+    }
+
+    const banners = await this.bannerRepository.adminBannerRetrieve(query);
+    await this.redisHelper.set("banners", query, banners);
     return banners;
   }
 

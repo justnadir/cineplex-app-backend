@@ -1,5 +1,4 @@
 import { Router } from "express";
-import fileUploadHandler from "../../middlewares/file-upload.middleware";
 import validateRequest from "../../middlewares/request-validator.middleware";
 import {
   createRateLimiter,
@@ -24,14 +23,12 @@ export class AuthRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router
-      .route("/login")
-      .post(
-        writeLimiter,
-        fileUploadHandler(),
-        validateRequest(this.validator.loginZodSchema),
-        this.authController.login
-      );
+    this.router.post(
+      "/login",
+      writeLimiter,
+      validateRequest(this.validator.loginZodSchema),
+      this.authController.login
+    );
 
     this.router.post(
       "/verify-otp",
@@ -65,7 +62,7 @@ export class AuthRoutes {
       "/delete-account",
       createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5 }),
       this.authMiddleware.authenticate,
-      // validateRequest(this.validator.resetPasswordZodSchema),
+      validateRequest(this.validator.resetPasswordZodSchema),
       this.authController.deleteAccount
     );
 

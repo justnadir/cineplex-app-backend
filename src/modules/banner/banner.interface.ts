@@ -14,4 +14,5 @@ export type ICreateBanner = Omit<IBanner, "id" | "created_at" | "banner">;
 export interface IBannerUpdate {
   title?: string;
   banner_image?: string;
+  status?: BANNER_STATUS;
 }

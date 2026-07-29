@@ -23,12 +23,25 @@ export class BannerController {
   });
 
   retrieve = catchAsync(async (_req: Request, res: Response) => {
-    const result = await this.bannerService.retrieveFromDB();
+    const result = await this.bannerService.publicBannerRetrieveFromDB();
 
     sendResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
       message: "Banner retrieved successfully",
+      data: result,
+    });
+  });
+
+  adminRetrieve = catchAsync(async (_req: Request, res: Response) => {
+    const result = await this.bannerService.adminBannerRetrieveFromDB(
+      _req.query
+    );
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Admin Banner retrieved successfully",
       data: result,
     });
   });

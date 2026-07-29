@@ -31,7 +31,7 @@ export class MovieService {
     return movie;
   }
 
-  async retrieveFromDB(query: Record<string, any>) {
+  async retrieveFromDB(query: Partial<IMovie>) {
     // Caching ekhane (service layer) — read-through + invalidation ek jaygay.
     const cached = await this.redisHelper.hget<{
       movies: IMovie[];

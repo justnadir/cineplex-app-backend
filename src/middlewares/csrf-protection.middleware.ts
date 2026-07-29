@@ -14,5 +14,5 @@ export const csrfProtection = (
     });
   }
 
-  next();
+  return next();
 };

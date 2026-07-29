@@ -2,17 +2,12 @@ import { z } from "zod";
 import { USER_ROLES } from "../../enums";
 import {
   emailSchema,
+  passwordZodValidator,
   phoneSchema,
   positiveIntIdSchema,
 } from "../../validators";
 
 export class UserValidator {
-  private passwordSchema = z
-    .string()
-    .trim()
-    .min(6, { error: "Password must be at least 6 characters" })
-    .max(12, { error: "Password must be at most 12 characters" });
-
   private static userBody = z.object({
     name: z
       .string()
@@ -65,8 +60,8 @@ export class UserValidator {
       current_password: z
         .string({ error: "Current password is required" })
         .min(1),
-      new_password: this.passwordSchema,
-      confirm_password: this.passwordSchema,
+      new_password: passwordZodValidator,
+      confirm_password: passwordZodValidator,
     }),
   });
 }

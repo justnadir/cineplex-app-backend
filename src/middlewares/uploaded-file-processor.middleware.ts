@@ -2,16 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { getMultipleFilesPath, getSingleFilePath } from "../shared/getFilePath";
 import ApiError from "../errors/ApiErrors";
-
-type FolderName =
-  | "image"
-  | "media"
-  | "doc"
-  | "banner_image"
-  | "category_image"
-  | "movie_poster"
-  | "user"
-  | "news_image";
+import { FolderName } from "../types/upload-directories.types";
 
 export const attachSingleFile =
   (field: FolderName, bodyKey: string = field) =>
@@ -29,7 +20,7 @@ export const attachMultipleFiles =
   (field: FolderName, bodyKey: string = field) =>
   async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
-      const filePaths = await getMultipleFilesPath(req.files, field);
+      const filePaths = await getMultipleFilesPath(req?.files, field);
       req.body = { ...req.body, [bodyKey]: filePaths };
       next();
     } catch {

@@ -1,12 +1,15 @@
 import { z } from "zod";
 import { idParamSchema, paginationSchema } from "../../validators";
-const STATUSES = ["draft", "published"] as const;
+import { NEWS_STATUS } from "../../enums";
 
 export class NewsValidator {
   private static newsBody = z.object({
     title: z.string({ error: "Title is required" }).trim().min(1).max(255),
     news_image: z.string({ error: "Image is required" }).trim().min(1),
     content: z.string({ error: "Content is required" }).trim().min(1),
+    status: z.enum(NEWS_STATUS, {
+      error: "Status must be either draft or published",
+    }),
   });
 
   createNewsZodSchema = z.object({
@@ -19,7 +22,9 @@ export class NewsValidator {
       .partial()
       .extend({
         status: z
-          .enum(STATUSES, { error: "Status must be either draft or published" })
+          .enum(NEWS_STATUS, {
+            error: "Status must be either draft or published",
+          })
           .optional(),
       })
       .strict(),
@@ -33,7 +38,9 @@ export class NewsValidator {
           .enum(["recent"], { error: "sortBy must be: recent" })
           .optional(),
         status: z
-          .enum(STATUSES, { error: "Status must be either draft or published" })
+          .enum(NEWS_STATUS, {
+            error: "Status must be either draft or published",
+          })
           .optional(),
       })
       .strict(),

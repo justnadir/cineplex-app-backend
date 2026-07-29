@@ -1,4 +1,6 @@
 import pool from "../../db";
+import QueryBuilder from "../../shared/QueryBuilder";
+import { IPagination } from "../../types/pagination";
 import { IBanner, IBannerUpdate } from "./banner.interface";
 
 export class BannerRepository {
@@ -17,11 +19,27 @@ export class BannerRepository {
   }
 
   // Retrieve all banners ordered by creation date
-  async retrieve(): Promise<IBanner[]> {
+  async publicBannerRetrieve(): Promise<IBanner[]> {
     const result = await this.pool.query<IBanner>(
-      "SELECT * FROM banners ORDER BY created_at ASC, id ASC"
+      "SELECT title, banner_image FROM banners ORDER BY created_at ASC, id ASC"
     );
     return result.rows;
+  }
+
+  // Retrieve all banners ordered by creation date
+  async adminBannerRetrieve(
+    query: Partial<IBanner>
+  ): Promise<{ banners: IBanner[]; pagination: IPagination }> {
+    const builder = new QueryBuilder("banners", {
+      ...query,
+    })
+      .filter()
+      .paginate();
+
+    const banners = await builder.execute<IBanner>();
+    const pagination = await builder.getPaginationInfo();
+
+    return { banners, pagination };
   }
 
   // Retrieve a banner by title (case-insensitive, used to detect duplicates).
@@ -56,11 +74,17 @@ export class BannerRepository {
     const sql = `
       UPDATE banners SET
         title        = COALESCE($1, title),
-        banner_image = COALESCE($2, banner_image)
-      WHERE id = $3
+        banner_image = COALESCE($2, banner_image),
+        status = COALESCE($3, status)
+      WHERE id = $4
       RETURNING *
     `;
-    const values = [payload.title ?? null, payload.banner_image ?? null, id];
+    const values = [
+      payload.title ?? null,
+      payload.banner_image ?? null,
+      payload.status ?? null,
+      id,
+    ];
     const result = await this.pool.query<IBanner>(sql, values);
     return result.rows[0] ?? null;
   }

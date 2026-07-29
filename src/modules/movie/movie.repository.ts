@@ -33,10 +33,10 @@ export class MovieRepository {
   }
 
   async retrieve(
-    query: Record<string, any>
+    query: Partial<IMovie>
   ): Promise<{ movies: IMovie[]; pagination: IPagination }> {
     const builder = new QueryBuilder("movies", query)
-      .search(["title", "genre", "actor"]) // ?searchTerm=...
+      .search(["title", "genre", "actor"])
       .filter(["category", "status", "language", "genre"])
       .sort()
       .paginate();

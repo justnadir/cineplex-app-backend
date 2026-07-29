@@ -14,7 +14,7 @@ export class AuthMiddleware {
     next: NextFunction
   ): void => {
     try {
-      const header = req.headers.authorization;
+      const header = req.headers.authorization || req?.cookies?.refreshToken;
       const fromHeader = header?.startsWith("Bearer ")
         ? header.slice(7)
         : undefined;
