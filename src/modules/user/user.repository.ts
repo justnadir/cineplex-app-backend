@@ -43,7 +43,7 @@ export class UserRepository {
 
   async findByUserId(user_id: number): Promise<IUser | undefined> {
     const result = await this.pool.query<IUser>(
-      `SELECT * FROM users WHERE id = $1 LIMIT 1`,
+      `SELECT id, name, email, avatar, phone, role FROM users WHERE id = $1 LIMIT 1`,
       [user_id]
     );
 

@@ -1,11 +1,11 @@
-import pinoHttp from "pino-http";
+import pinoHttp, { Options } from "pino-http";
 import { v4 as uuidv4 } from "uuid";
-import { IncomingMessage } from "http";
+import { Request, Response } from "express";
 import logger from "../shared/logger";
 
-export const requestLogger = pinoHttp({
+const options: Options<Request, Response> = {
   logger,
-  genReqId: (req: IncomingMessage) => {
+  genReqId: (req) => {
     const existing = req.headers["x-request-id"];
     if (typeof existing === "string" && existing.length) return existing;
     return uuidv4();
@@ -15,14 +15,17 @@ export const requestLogger = pinoHttp({
     if (res.statusCode >= 400) return "warn";
     return "info";
   },
-  customSuccessMessage: (req, res) =>
-    `${req.method} ${req.url} ${res.statusCode}`,
+  customSuccessMessage: (req, res, responseTime) =>
+    `${req.method} ${req.url} ${res.statusCode} - ${responseTime}ms`,
   customErrorMessage: (req, res, err) =>
     `${req.method} ${req.url} ${res.statusCode} - ${err.message}`,
   serializers: {
-    req: (req) => ({ id: req.id, method: req.method, url: req.url }),
-    res: (res) => ({ statusCode: res.statusCode }),
+    req: () => undefined,
+    res: () => undefined,
+    responseTime: () => undefined,
   },
-});
+};
+
+const requestLogger = pinoHttp(options);
 
 export default requestLogger;

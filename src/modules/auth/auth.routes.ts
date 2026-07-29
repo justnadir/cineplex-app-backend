@@ -1,21 +1,25 @@
 import { Router } from "express";
 import validateRequest from "../../middlewares/request-validator.middleware";
 import {
+  authLimiter,
   createRateLimiter,
   writeLimiter,
 } from "../../middlewares/rate-limiter.middleware";
 import { AuthMiddleware } from "../../middlewares/authentication-middlware";
 import { AuthController } from "./auth.controller";
 import { AuthValidator } from "./auth.validator";
+import { csrfProtection } from "../../middlewares/csrf-protection.middleware";
+import { RefreshTokenController } from "../refresh_token/refresh_token.controller";
 
 export class AuthRoutes {
   public router: Router;
   private authController: AuthController;
   private authMiddleware: AuthMiddleware;
   private validator: AuthValidator;
-
+  private refreshTokenController: RefreshTokenController;
   constructor() {
     this.router = Router();
+    this.refreshTokenController = new RefreshTokenController();
     this.authController = new AuthController();
     this.validator = new AuthValidator();
     this.authMiddleware = new AuthMiddleware();
@@ -28,6 +32,13 @@ export class AuthRoutes {
       writeLimiter,
       validateRequest(this.validator.loginZodSchema),
       this.authController.login
+    );
+
+    this.router.get(
+      "/access_token_generate",
+      authLimiter,
+      csrfProtection,
+      this.refreshTokenController.regenarateToken
     );
 
     this.router.post(

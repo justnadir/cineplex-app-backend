@@ -5,6 +5,8 @@ import { RedisHelper } from "../../shared/redis/redis.helper";
 import ApiError from "../../errors/ApiErrors";
 import parseId from "../../shared/parseId";
 import unlinkFile from "../../shared/unlinkFile";
+import logger from "../../shared/logger";
+import { IPagination } from "../../types/pagination";
 
 export class BannerService {
   private bannerRepository: BannerRepository;
@@ -30,25 +32,55 @@ export class BannerService {
     return banner;
   }
 
-  async publicBannerRetrieveFromDB() {
-    const cached = await this.redisHelper.get<IBanner[]>("banners");
-    if (cached) {
-      return cached;
+  async publicBannerRetrieveFromDB(): Promise<IBanner[]> {
+    const cacheKey = "banners";
+    const CACHE_TTL = 600; // 10 minutes
+
+    try {
+      const cached = await this.redisHelper.get<IBanner[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    } catch (err) {
+      logger.warn({ err }, "Redis get failed, falling back to DB");
     }
 
     const banners = await this.bannerRepository.publicBannerRetrieve();
-    await this.redisHelper.set("banners", banners);
+
+    try {
+      await this.redisHelper.set(cacheKey, banners, undefined, CACHE_TTL);
+    } catch (err) {
+      logger.warn({ err }, "Redis set failed");
+    }
+
     return banners;
   }
 
-  async adminBannerRetrieveFromDB(query: Partial<IBanner>) {
-    const cached = await this.redisHelper.hget<IBanner[]>("banners", query);
-    if (cached) {
-      return cached;
+  async adminBannerRetrieveFromDB(
+    query: Partial<IBanner>
+  ): Promise<{ banners: IBanner[]; pagination: IPagination }> {
+    const CACHE_TTL = 300;
+
+    try {
+      const cached = await this.redisHelper.hget<{
+        banners: IBanner[];
+        pagination: IPagination;
+      }>("banners", query);
+      if (cached) {
+        return cached;
+      }
+    } catch (err) {
+      logger.warn({ err, query }, "Redis hget failed, falling back to DB");
     }
 
     const banners = await this.bannerRepository.adminBannerRetrieve(query);
-    await this.redisHelper.set("banners", query, banners);
+
+    try {
+      await this.redisHelper.hset("banners", banners, query, CACHE_TTL);
+    } catch (err) {
+      logger.warn({ err, query }, "Redis set failed");
+    }
+
     return banners;
   }
 

@@ -6,6 +6,7 @@ import ApiError from "../../errors/ApiErrors";
 import parseId from "../../shared/parseId";
 import unlinkFile from "../../shared/unlinkFile";
 import { RedisHelper } from "../../shared/redis/redis.helper";
+import logger from "../../shared/logger";
 
 export class NewsService {
   private newsRepository: NewsRepository;
@@ -21,27 +22,34 @@ export class NewsService {
     if (!news) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to create news");
     }
-    await this.redisHelper.del("news");
+    await this.redisHelper.hKeyDelete("news");
     return news;
   }
 
   async retrieveFromDB(
     query: Partial<INews>
   ): Promise<{ news: INews[]; pagination: IPagination }> {
-    const cached = await this.redisHelper.hget<{
-      news: INews[];
-      pagination: IPagination;
-    }>("news", query);
-    if (cached) {
-      return cached;
+    const CACHE_TTL = 300;
+
+    try {
+      const cached = await this.redisHelper.hget<{
+        news: INews[];
+        pagination: IPagination;
+      }>("news", query);
+      if (cached) {
+        return cached;
+      }
+    } catch (err) {
+      logger.warn({ err, query }, "Redis hget failed, falling back to DB");
     }
 
-    const result = await this.newsRepository.retrieve(query);
-    // Negative caching: empty result o short TTL e rakhi jate same khali query
-    // bar bar DB te na jay (thundering herd guard).
-    const ttl = result.news.length > 0 ? 3600 : 60;
-    await this.redisHelper.hset("news", query, result, ttl);
-    return result;
+    const banners = await this.newsRepository.retrieve(query);
+    try {
+      await this.redisHelper.hset("news", query, banners, CACHE_TTL);
+    } catch (err) {
+      logger.warn({ err, query }, "Redis set failed");
+    }
+    return banners;
   }
 
   async getByIdFromDB(id: string) {

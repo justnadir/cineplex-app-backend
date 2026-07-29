@@ -2,7 +2,7 @@ export interface IRefreshToken {
   id: number;
   user_id: number;
   token_hash: string;
-  expires_at: Date;
+  expires_at?: Date;
   is_revoked: boolean;
   device_info: string;
   ip_address: string;

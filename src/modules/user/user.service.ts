@@ -9,12 +9,15 @@ import { HashPasswordService } from "../../utils/hash_password";
 import { runInTransaction } from "../../db/transaction-context";
 import pool from "../../db";
 import { emailQueue } from "../../shared/email/email.queue";
+import { RedisHelper } from "../../shared/redis/redis.helper";
+import logger from "../../shared/logger";
 
 export class UserService {
   private userRepository = new UserRepository();
   private otpGenerator = new OtpGeneratorService();
   private hashPasswordService = new HashPasswordService();
   private otpRepository = new OtpRepository();
+  private redisHelper = new RedisHelper();
 
   // Create a new user in the database, ensuring uniqueness by email
   async createUserToDB(
@@ -121,6 +124,32 @@ export class UserService {
 
   // retrived profile information.
   async retrivedProfileFromDB(user_id: number): Promise<IUser | undefined> {
-    return await this.userRepository.findByUserId(user_id);
+    const cacheKey = `user:${user_id}`;
+    const CACHE_TTL = 3600;
+
+    // if the cached failed - DB will be fallback.
+    try {
+      const cached = await this.redisHelper.get<IUser>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    } catch (err) {
+      logger.warn({ err, user_id }, "Redis get failed, falling back to DB");
+    }
+
+    // fetch details from the DB.
+    const profile = await this.userRepository.findByUserId(user_id);
+
+    if (!profile) {
+      return undefined;
+    }
+
+    try {
+      await this.redisHelper.set(cacheKey, profile, undefined, CACHE_TTL);
+    } catch (err) {
+      logger.warn({ err, user_id }, "Redis set failed");
+    }
+
+    return profile;
   }
 }

@@ -4,7 +4,7 @@ import { UserValidator } from "./user.validator";
 import validateRequest from "../../middlewares/request-validator.middleware";
 import { createRateLimiter } from "../../middlewares/rate-limiter.middleware";
 import { AuthMiddleware } from "../../middlewares/authentication-middlware";
-import { USER_ROLES } from "../../enums";
+import { csrfProtection } from "../../middlewares/csrf-protection.middleware";
 
 export class UserRoutes {
   public router: Router;
@@ -31,13 +31,13 @@ export class UserRoutes {
       "/me",
       createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5 }),
       this.authMiddleware.authenticate,
-      this.authMiddleware.authorize(USER_ROLES.USER),
       this.userController.retrieveProfile
     );
     this.router.patch(
       "/change_password",
       createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5 }),
       this.authMiddleware.authenticate,
+      csrfProtection,
       validateRequest(this.validator.changePasswordZodSchema),
       this.userController.changePassword
     );

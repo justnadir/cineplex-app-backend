@@ -10,7 +10,7 @@ export class RefreshTokenService {
 
   async regenerateToken(
     refreshTokenPayload: string,
-    payload: ICreateRefreshToken
+    payload: Partial<ICreateRefreshToken>
   ) {
     if (!refreshTokenPayload) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid Token");
