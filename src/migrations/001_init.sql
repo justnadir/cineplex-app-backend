@@ -148,3 +148,14 @@ CREATE TABLE
     );
 
 CREATE INDEX idx_movies ON movies (status, created_at DESC);
+
+CREATE TABLE
+    IF NOT EXISTS theaters (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(150) NOT NULL, -- "Star Cineplex Bashundhara"
+        code VARCHAR(20) NULL, -- short code, e.g. "SCB"
+        location TEXT NULL, -- address
+        status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'deleted')),
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    )

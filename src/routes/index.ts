@@ -5,6 +5,7 @@ import BannerRoutes from "../modules/banner/banner.routes";
 import NewsRoutes from "../modules/news/news.routes";
 import CommentRoutes from "../modules/comment/comment.routes";
 import MovieRoutes from "../modules/movie/movie.routes";
+import TheaterRoutes from "../modules/theater/theater.routes";
 const router = express.Router();
 
 export const apiRoutes: Array<{ path: string; route: Router }> = [
@@ -14,6 +15,7 @@ export const apiRoutes: Array<{ path: string; route: Router }> = [
   { path: "/news", route: NewsRoutes },
   { path: "/comment", route: CommentRoutes },
   { path: "/movie", route: MovieRoutes },
+  { path: "/theater", route: TheaterRoutes },
 ];
 
 apiRoutes.forEach((route) => router.use(route.path, route.route));

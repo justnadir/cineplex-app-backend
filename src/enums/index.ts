@@ -29,6 +29,11 @@ export enum BANNER_STATUS {
   DELETED = "deleted",
 }
 
+export enum THEATER_STATUS {
+  ACTIVE = "active",
+  DELETED = "deleted",
+}
+
 export enum COMMENT_STATUS {
   PENDING = "pending",
   APPROVED = "approved",
