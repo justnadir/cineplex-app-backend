@@ -8,6 +8,8 @@ import { MovieValidator } from "./movie.validation";
 import { AuthMiddleware } from "../../middlewares/authentication-middlware";
 import { USER_ROLES } from "../../enums";
 import { validIdParamCheckSchema } from "../../validators";
+import { FOLDERS_NAMES } from "../../types/upload-directories.types";
+import { csrfProtection } from "../../middlewares/csrf-protection.middleware";
 
 export class MovieRoutes {
   public router: Router;
@@ -17,9 +19,9 @@ export class MovieRoutes {
 
   constructor() {
     this.router = Router();
+    this.authMiddleware = new AuthMiddleware();
     this.movieController = new MovieController();
     this.validator = new MovieValidator();
-    this.authMiddleware = new AuthMiddleware();
     this.initializeRoutes();
   }
 
@@ -29,8 +31,9 @@ export class MovieRoutes {
       writeLimiter,
       this.authMiddleware.authenticate,
       this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+      csrfProtection,
       fileUploadHandler(),
-      attachSingleFile("movie_poster"),
+      attachSingleFile(FOLDERS_NAMES.movie_poster),
       validateRequest(this.validator.createMovieValidatorSchema),
       this.movieController.create
     );
@@ -44,6 +47,9 @@ export class MovieRoutes {
       .route("/:id")
       .patch(
         writeLimiter,
+        this.authMiddleware.authenticate,
+        this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+        csrfProtection,
         fileUploadHandler(),
         attachSingleFile("movie_poster"),
         validateRequest(this.validator.updateMovieValidatorSchema),
@@ -53,6 +59,7 @@ export class MovieRoutes {
         writeLimiter,
         this.authMiddleware.authenticate,
         this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+        csrfProtection,
         validateRequest(validIdParamCheckSchema),
         this.movieController.delete
       );

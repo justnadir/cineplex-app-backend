@@ -8,7 +8,10 @@ export class TheaterController {
   private theaterService = new TheaterService();
 
   create = catchAsync(async (req: Request, res: Response) => {
-    const result = await this.theaterService.createToDB(5, req.body);
+    const result = await this.theaterService.createToDB({
+      ...req.body,
+      admin_id: req.user?.user_id,
+    });
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,
       success: true,

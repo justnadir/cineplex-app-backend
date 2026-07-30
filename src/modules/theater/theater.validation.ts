@@ -41,9 +41,11 @@ export class TheaterValidator {
   adminTheatersQuerySchema = z.object({
     query: paginationSchema
       .extend({
-        status: z.enum(THEATER_STATUS, {
-          error: `Status must be one of: ${Object.values(THEATER_STATUS).join(", ")}`,
-        }),
+        status: z
+          .enum(THEATER_STATUS, {
+            error: `Status must be one of: ${Object.values(THEATER_STATUS).join(", ")}`,
+          })
+          .optional(),
       })
       .strict(),
   });

@@ -14,7 +14,7 @@ export interface ITheater {
 // id/is_active/created_at/updated_at are auto-handled by DB.
 export type ICreateTheater = Omit<
   ITheater,
-  "id" | "admin_id" | "status" | "created_at" | "updated_at"
+  "id" | "status" | "created_at" | "updated_at"
 >;
 
 // Update = every create field optional also is_active toggle.

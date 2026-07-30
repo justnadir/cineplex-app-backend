@@ -12,7 +12,10 @@ export class MovieController {
   }
 
   create = catchAsync(async (req: Request, res: Response) => {
-    const result = await this.movieService.createToDB(req.body);
+    const result = await this.movieService.createToDB({
+      ...req.body,
+      admin_id: req.user?.user_id,
+    });
 
     sendResponse(res, {
       statusCode: StatusCodes.CREATED,

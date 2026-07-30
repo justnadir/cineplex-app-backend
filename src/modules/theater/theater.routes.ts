@@ -3,14 +3,19 @@ import { TheaterController } from "./theater.controller";
 import { writeLimiter } from "../../middlewares/rate-limiter.middleware";
 import validateRequest from "../../middlewares/request-validator.middleware";
 import { TheaterValidator } from "./theater.validation";
+import { AuthMiddleware } from "../../middlewares/authentication-middlware";
+import { USER_ROLES } from "../../enums";
+import { csrfProtection } from "../../middlewares/csrf-protection.middleware";
 
 export class TheaterRoutes {
   public router: Router;
   private controller: TheaterController;
   private validator: TheaterValidator;
+  private authMiddleware: AuthMiddleware;
 
   constructor() {
     this.router = Router();
+    this.authMiddleware = new AuthMiddleware();
     this.controller = new TheaterController();
     this.validator = new TheaterValidator();
     this.initializeRoutes();
@@ -21,6 +26,9 @@ export class TheaterRoutes {
       .route("/")
       .post(
         writeLimiter,
+        this.authMiddleware.authenticate,
+        this.authMiddleware.authorize(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+        csrfProtection,
         validateRequest(this.validator.createTheaterZodSchema),
         this.controller.create
       )

@@ -6,15 +6,12 @@ import { ITheater, ICreateTheater, IUpdateTheater } from "./theater.interface";
 export class TheaterRepository {
   private pool = pool;
 
-  async create(
-    adminId: number,
-    payload: ICreateTheater
-  ): Promise<ITheater | undefined> {
+  async create(payload: ICreateTheater): Promise<ITheater | undefined> {
     const result = await this.pool.query<ITheater>(
       `INSERT INTO theaters (admin_id, name, code, location)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [adminId, payload.name, payload.code, payload.location]
+      [payload.admin_id, payload.name, payload.code, payload.location]
     );
     return result.rows[0];
   }
@@ -39,15 +36,7 @@ export class TheaterRepository {
   ): Promise<{ theaters: ITheater[]; pagination: IPagination }> {
     const builder = new QueryBuilder("theaters", query)
       .search(["name", "location", "code"])
-      .select([
-        "id",
-        "admin_id",
-        "name",
-        "code",
-        "location",
-        "created_at",
-        "updated_at",
-      ])
+      .filter()
       .sort()
       .paginate();
 
@@ -64,10 +53,12 @@ export class TheaterRepository {
     return result.rows[0] ?? null;
   }
 
-  // Case-insensitive code lookup (for duplicate guard).
   async findByCode(code: string): Promise<ITheater | null> {
     const result = await this.pool.query<ITheater>(
-      "SELECT * FROM theaters WHERE UPPER(code) = UPPER($1) LIMIT 1",
+      `SELECT * FROM theaters 
+     WHERE UPPER(code) = UPPER($1) AND status = 'active' 
+     ORDER BY id 
+     LIMIT 1`,
       [code]
     );
     return result.rows[0] ?? null;
