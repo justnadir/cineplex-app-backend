@@ -14,6 +14,8 @@ import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import { ExpressAdapter } from "@bull-board/express";
 import ErrorHandler from "./middlewares/error-handler.middleware";
+import { generateOpenApiSpec } from "./config/swagger";
+import swaggerUi from "swagger-ui-express";
 
 dotenv.config();
 
@@ -40,6 +42,7 @@ app.use(cookieParser());
 //file retrieve
 app.use(express.static("uploads"));
 app.use("/api/v1", router);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(generateOpenApiSpec()));
 
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath("/admin/queues");

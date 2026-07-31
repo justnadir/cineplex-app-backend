@@ -18,13 +18,13 @@ export const logger = pino({
   transport: isProd
     ? undefined
     : {
-      target: "pino-pretty",
-      options: {
-        colorize: true,
-        singleLine: true,
-        translateTime: "HH:MM:ss",
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+          singleLine: true,
+          translateTime: "HH:MM:ss",
+        },
       },
-    },
 });
 
 export default logger;
