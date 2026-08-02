@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { BannerRepository } from "./banner.repository";
-import { IBanner, IBannerUpdate } from "./banner.interface";
+import { IBanner, IBannerUpdate, ICreateBanner } from "./banner.interface";
 import { RedisHelper } from "../../shared/redis/redis.helper";
 import ApiError from "../../errors/ApiErrors";
 import parseId from "../../shared/parseId";
@@ -17,7 +17,7 @@ export class BannerService {
     this.redisHelper = new RedisHelper();
   }
 
-  async createToDB(data: IBanner) {
+  async createToDB(data: ICreateBanner) {
     // check for duplicate title
     const isExistTitle = await this.bannerRepository.findByTitle(data.title);
     if (isExistTitle) {

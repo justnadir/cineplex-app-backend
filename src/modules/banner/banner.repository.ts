@@ -1,12 +1,12 @@
 import pool from "../../db";
 import QueryBuilder from "../../shared/QueryBuilder";
 import { IPagination } from "../../types/pagination";
-import { IBanner, IBannerUpdate } from "./banner.interface";
+import { IBanner, IBannerUpdate, ICreateBanner } from "./banner.interface";
 
 export class BannerRepository {
   private pool = pool;
 
-  async create(payload: IBanner): Promise<IBanner | undefined> {
+  async create(payload: ICreateBanner): Promise<IBanner | undefined> {
     const bannerResult = await pool.query<IBanner>(
       `INSERT INTO banners (title, banner_image)
       VALUES ($1, $2)

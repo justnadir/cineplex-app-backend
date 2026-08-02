@@ -4,20 +4,21 @@ import prettierPlugin from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
 
 export default tseslint.config(
-    js.configs.recommended,
-    ...tseslint.configs.recommended,
-    {
-        plugins: {
-            prettier: prettierPlugin,
-        },
-        rules: {
-            "prettier/prettier": "warn",
-            "@typescript-eslint/no-unused-vars": "warn",
-            "@typescript-eslint/no-explicit-any": "warn",
-        },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.{ts,js,mjs}"],
+    plugins: {
+      prettier: prettierPlugin,
     },
-    prettierConfig,
-    {
-        ignores: ["dist/", "node_modules/"],
-    }
+    rules: {
+      "prettier/prettier": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
+  prettierConfig,
+  {
+    ignores: ["dist/", "node_modules/"],
+  }
 );

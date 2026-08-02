@@ -88,8 +88,8 @@ export class NewsService {
       await unlinkFile(isExistNews.news_image);
     }
 
-    await this.redisHelper.del("news");
-    await this.redisHelper.del(`news:${newsId}`);
+    await this.redisHelper.hKeyDelete("news");
+    await this.redisHelper.hKeyDelete(`news:${newsId}`);
     return updatedNews;
   }
 
@@ -111,8 +111,8 @@ export class NewsService {
       await unlinkFile(isExistNews.news_image);
     }
 
-    await this.redisHelper.del("news");
-    await this.redisHelper.del(`news:${newsId}`);
+    await this.redisHelper.hKeyDelete("news");
+    await this.redisHelper.hKeyDelete(`news:${newsId}`);
     return deleted;
   }
 }

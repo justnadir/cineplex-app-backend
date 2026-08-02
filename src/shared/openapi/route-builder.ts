@@ -53,10 +53,10 @@ export const defineRoute = (
     security: auth ? [{ bearerAuth: [] }] : undefined,
     request: schema?.shape?.body
       ? {
-        body: {
-          content: { "application/json": { schema: schema.shape.body } },
-        },
-      }
+          body: {
+            content: { "application/json": { schema: schema.shape.body } },
+          },
+        }
       : undefined,
     responses: {
       200: {
