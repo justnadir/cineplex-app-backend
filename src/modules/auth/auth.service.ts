@@ -133,7 +133,6 @@ export class AuthService {
     if (!isExisting) {
       throw new ApiError(StatusCodes.CONFLICT, "Invalid Email");
     }
-    console.log(otp);
 
     const otpPayload = {
       user_id: isExisting.id,
@@ -191,7 +190,6 @@ export class AuthService {
 
   // Create a new OTP in the database
   async createOtpToDB(payload: ICreateOtp): Promise<IOtp | undefined> {
-    console.log(payload);
     const otp = await this.otpRepository.create(payload);
     return otp;
   }
@@ -263,7 +261,6 @@ export class AuthService {
     if (!isExisting) {
       throw new ApiError(StatusCodes.CONFLICT, "Invalid Email");
     }
-    console.log(otp);
 
     const otpPayload = {
       user_id: isExisting.id,
@@ -285,7 +282,6 @@ export class AuthService {
     if (isExisting.status === "deleted") {
       throw new ApiError(StatusCodes.CONFLICT, "Invalid Email");
     }
-    console.log(otp);
 
     const otpPayload = {
       user_id: isExisting.id,

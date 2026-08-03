@@ -24,6 +24,8 @@ export class TheaterService {
     if (!theater) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to create theater");
     }
+    await this.redisHelper.keyDelete("theaters:public");
+    await this.redisHelper.keyDelete("theaters:admin");
     return theater;
   }
 
@@ -42,7 +44,7 @@ export class TheaterService {
     } catch (err) {
       logger.warn({ err }, "Redis get failed, falling back to DB");
     }
-    const theaters = await this.theaterRepository.adminRetrieve(query);
+    const theaters = await this.theaterRepository.retrieve(query);
 
     try {
       await this.redisHelper.hset(cacheKey, query, theaters, CACHE_TTL);
@@ -100,6 +102,8 @@ export class TheaterService {
     if (!updated) {
       throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to update theater");
     }
+    await this.redisHelper.keyDelete("theaters:public");
+    await this.redisHelper.keyDelete("theaters:admin");
     return updated;
   }
 
@@ -119,6 +123,8 @@ export class TheaterService {
       );
     }
 
-    return await this.redisHelper.keyDelete("theaters:*");
+    await this.redisHelper.keyDelete("theaters:public");
+    await this.redisHelper.keyDelete("theaters:admin");
+    return existing;
   }
 }
